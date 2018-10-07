@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                makeRequestForUser("JOhn@jcsu.edu");
+                makeRequestForUser("livanchenkov1g@example.com");
 
             }
         });
@@ -140,12 +140,71 @@ public class MainActivity extends AppCompatActivity
         MySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
 
     }
-    public void makeRequestForReservation(){
-    }
-    public void makeRequestForFlight(){
+    public void makeRequestForReservation(String recordLocator){
+        String url ="https://wings-jcsu.herokuapp.com/reservation?recordLocator=" + recordLocator.trim();
+        final Gson gson = new Gson();
 
+        final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Reservation reservation = gson.fromJson(response.toString(), Reservation.class);
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO: Handle error
+                        Toast.makeText(MainActivity.this, "Error app side ", Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+        MySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
     }
-    public void makeRequestForAirportInfo(){
+    public void makeRequestForFlight(String flightNumber, String date){
+        String url = "https://wings-jcsu.herokuapp.com/flight?flightNumber="+flightNumber+"&date="+date;
+        final Gson gson = new Gson();
+
+        final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Flight flight = gson.fromJson(response.toString(), Flight.class);
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO: Handle error
+                        Toast.makeText(MainActivity.this, "Error app side ", Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+        MySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
+    }
+    public void makeRequestForAirportInfo(String airportCode){
+        String url = "https://wings-jcsu.herokuapp.com/airports?code=" + airportCode;
+        final Gson gson = new Gson();
+
+        final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Airport airport = gson.fromJson(response.toString(), Airport.class);
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO: Handle error
+                        Toast.makeText(MainActivity.this, "Error app side ", Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+        MySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
     }
 
 }
