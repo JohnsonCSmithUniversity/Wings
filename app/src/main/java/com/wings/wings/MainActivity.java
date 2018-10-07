@@ -12,10 +12,22 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.gson.Gson;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    ArrayList<User> userList = new ArrayList<User>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,6 +41,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                makeRequestForUser("JOhn@jcsu.edu");
 
             }
         });
@@ -99,4 +112,40 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+    public void makeRequestForUser(String email){
+
+        String[] parts = email.split("@");
+        String emailName = parts[0];
+        String emailAddress = parts[1];
+        String url ="https://wings-jcsu.herokuapp.com/user?email="+emailName+"%40"+emailAddress;
+        final Gson gson = new Gson();
+
+        final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        userList.add(gson.fromJson(response.toString(),User.class));
+                        Toast.makeText(MainActivity.this, userList.get(0).getFirstName(), Toast.LENGTH_SHORT).show();
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO: Handle error
+                        Toast.makeText(MainActivity.this, "Error app side ", Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+        MySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
+
+    }
+    public void makeRequestForReservation(){
+    }
+    public void makeRequestForFlight(){
+
+    }
+    public void makeRequestForAirportInfo(){
+    }
+
 }
