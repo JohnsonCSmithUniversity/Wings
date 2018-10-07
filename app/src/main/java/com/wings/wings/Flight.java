@@ -5,33 +5,49 @@ import com.google.gson.annotations.SerializedName;
 
 public class Flight {
 
+    @SerializedName("_id")
+    @Expose
+    private String id;
+    @SerializedName("departureTime")
+    @Expose
+    private String departureTime;
     @SerializedName("flightNumber")
     @Expose
     private String flightNumber;
-    @SerializedName("originCode")
+    @SerializedName("origin")
     @Expose
-    private String originCode;
-    @SerializedName("originCity")
+    private String origin;
+    @SerializedName("aircraftType")
     @Expose
-    private String originCity;
-    @SerializedName("destinationCode")
+    private String aircraftType;
+    @SerializedName("arrivalTime")
     @Expose
-    private String destinationCode;
-    @SerializedName("destinationCity")
+    private String arrivalTime;
+    @SerializedName("cost")
     @Expose
-    private String destinationCity;
-    @SerializedName("estimatedDeparture")
+    private String cost;
+    @SerializedName("destination")
     @Expose
-    private String estimatedDeparture;
-    @SerializedName("scheduledDeparture")
+    private String destination;
+    @SerializedName("flightStatus")
     @Expose
-    private String scheduledDeparture;
-    @SerializedName("estimatedArrival")
-    @Expose
-    private String estimatedArrival;
-    @SerializedName("scheduledArrival")
-    @Expose
-    private String scheduledArrival;
+    private String flightStatus;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getDepartureTime() {
+        return departureTime;
+    }
+
+    public void setDepartureTime(String departureTime) {
+        this.departureTime = departureTime;
+    }
 
     public String getFlightNumber() {
         return flightNumber;
@@ -41,68 +57,52 @@ public class Flight {
         this.flightNumber = flightNumber;
     }
 
-    public String getOriginCode() {
-        return originCode;
+    public String getOrigin() {
+        return origin;
     }
 
-    public void setOriginCode(String originCode) {
-        this.originCode = originCode;
+    public void setOrigin(String origin) {
+        this.origin = origin;
     }
 
-    public String getOriginCity() {
-        return originCity;
+    public String getAircraftType() {
+        return aircraftType;
     }
 
-    public void setOriginCity(String originCity) {
-        this.originCity = originCity;
+    public void setAircraftType(String aircraftType) {
+        this.aircraftType = aircraftType;
     }
 
-    public String getDestinationCode() {
-        return destinationCode;
+    public String getArrivalTime() {
+        return arrivalTime;
     }
 
-    public void setDestinationCode(String destinationCode) {
-        this.destinationCode = destinationCode;
+    public void setArrivalTime(String arrivalTime) {
+        this.arrivalTime = arrivalTime;
     }
 
-    public String getDestinationCity() {
-        return destinationCity;
+    public String getCost() {
+        return cost;
     }
 
-    public void setDestinationCity(String destinationCity) {
-        this.destinationCity = destinationCity;
+    public void setCost(String cost) {
+        this.cost = cost;
     }
 
-    public String getEstimatedDeparture() {
-        return estimatedDeparture;
+    public String getDestination() {
+        return destination;
     }
 
-    public void setEstimatedDeparture(String estimatedDeparture) {
-        this.estimatedDeparture = estimatedDeparture;
+    public void setDestination(String destination) {
+        this.destination = destination;
     }
 
-    public String getScheduledDeparture() {
-        return scheduledDeparture;
+    public String getFlightStatus() {
+        return flightStatus;
     }
 
-    public void setScheduledDeparture(String scheduledDeparture) {
-        this.scheduledDeparture = scheduledDeparture;
-    }
-
-    public String getEstimatedArrival() {
-        return estimatedArrival;
-    }
-
-    public void setEstimatedArrival(String estimatedArrival) {
-        this.estimatedArrival = estimatedArrival;
-    }
-
-    public String getScheduledArrival() {
-        return scheduledArrival;
-    }
-
-    public void setScheduledArrival(String scheduledArrival) {
-        this.scheduledArrival = scheduledArrival;
+    public void setFlightStatus(String flightStatus) {
+        this.flightStatus = flightStatus;
     }
 
 }

@@ -6,33 +6,25 @@ import com.google.gson.annotations.SerializedName;
 
 public class Reservation {
 
-    @SerializedName("firstName")
+    @SerializedName("_id")
     @Expose
-    private String firstName;
-    @SerializedName("lastName")
-    @Expose
-    private String lastName;
+    private String id;
     @SerializedName("recordLocator")
     @Expose
     private String recordLocator;
+    @SerializedName("user")
+    @Expose
+    private User user;
     @SerializedName("flights")
     @Expose
     private List<Flight> flights = null;
 
-    public String getFirstName() {
-        return firstName;
+    public String getId() {
+        return id;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getRecordLocator() {
@@ -41,6 +33,14 @@ public class Reservation {
 
     public void setRecordLocator(String recordLocator) {
         this.recordLocator = recordLocator;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public List<Flight> getFlights() {
