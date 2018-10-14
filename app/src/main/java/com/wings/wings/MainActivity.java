@@ -1,9 +1,11 @@
 package com.wings.wings;
 
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -12,49 +14,62 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.wings.wings.WeatherAPI.Weather;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
-    ArrayList<User> userList = new ArrayList<User>();
-    ArrayList<Reservation> reservations = new ArrayList<>();
-    ArrayList<Airport> airports = new ArrayList<>();
+    Context mContext = MainActivity.this;
+    private TextView mArrivalTemperature;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        DataManagerInstance instance = DataManagerInstance.getInstance();
+        Flight flight = instance.getReservation().getFlights().get(0);
+        final Airport airport = instance.getAirport();
 
+        TextView departureLocationView = findViewById(R.id.departure_location_textView);
+        TextView arrivalLocationView = findViewById(R.id.arrival_location_textView);
+        TextView departureTime = findViewById(R.id.departure_time_textView);
+        TextView arrivalLocation = findViewById(R.id.arrival_time_textView);
+        mArrivalTemperature = findViewById(R.id.arrival_temp_textView);
+
+        Button direcetionButton = findViewById(R.id.departure_direction_button);
+
+        departureLocationView.setText(flight.getOrigin());
+        arrivalLocationView.setText(flight.getDestination());
+        departureTime.setText(flight.getDepartureTime());
+        arrivalLocation.setText(flight.getArrivalTime());
+
+        getWeather("" + airport.getLatitude(), "" + airport.getLongitude());
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-
-                makeRequestForUser("John@jcsu.edu");
-                makeRequestForReservation("URJXUL");
+                startActivity(new Intent(mContext, ChatUI.class));
+            }
+        });
+        direcetionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openDirectionsInGoogleMaps("" + airport.getLatitude(), "" + airport.getLongitude());
             }
         });
 
@@ -108,16 +123,11 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_camera) {
             // Handle the camera action
+            startActivity(new Intent(MainActivity.this, BarcodeActivity.class));
         } else if (id == R.id.nav_gallery) {
 
-        } else if (id == R.id.nav_slideshow) {
-
         } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -125,14 +135,12 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void makeRequestForUser(String email) {
-        //split email
-        String[] parts = email.split("@");
-        String emailName = parts[0];
-        String emailAddress = parts[1];
+    public void getWaze() {
+        //startActivity(new Intent(MainActivity.this, )); https://waze.com/ul
+    }
 
-        //
-        String url = "https://wings-jcsu.herokuapp.com/user?email=" + emailName + "%40" + emailAddress;
+    private void getWeather(String latitude, String longitude) {
+        String url = "https://api.openweathermap.org/data/2.5/weather?lat=" + latitude + "&lon=" + longitude + "&appid=2988f111837e4a4eb7bcab831dc628e1";
         final Gson gson = new Gson();
 
         final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -140,94 +148,34 @@ public class MainActivity extends AppCompatActivity
 
                     @Override
                     public void onResponse(JSONObject response) {
-                        userList.add(gson.fromJson(response.toString(), User.class));
-                        Toast.makeText(MainActivity.this, userList.get(0).getFirstName(), Toast.LENGTH_SHORT).show();
+                        Weather weather = gson.fromJson(response.toString(), Weather.class);
+                        int temp = (int) getFahrenheit(weather.getMain().getTemp());
+                        mArrivalTemperature.setText(temp + " F");
+                        //Toast.makeText(mContext, "" + temp+ "F", Toast.LENGTH_SHORT).show();
                     }
                 }, new Response.ErrorListener() {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // TODO: Handle error
-                        Toast.makeText(MainActivity.this, "Error app side ", Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-        MySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
-
-    }
-
-    public void makeRequestForReservation(String recordLocator) {
-        String url = "https://wings-jcsu.herokuapp.com/reservation?recordLocator=" + recordLocator.trim();
-        final Gson gson = new Gson();
-
-        final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Reservation reservation = gson.fromJson(response.toString(), Reservation.class);
-                        reservations.add(reservation);
-                        makeRequestForAirportInfo(reservation.getFlights().get(0).getDestination());
-                        Toast.makeText(MainActivity.this, reservation.getFlights().get(0).getDestination(), Toast.LENGTH_SHORT).show();
-                    }
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(MainActivity.this, "Error app side ", Toast.LENGTH_SHORT).show();
 
                     }
                 });
         MySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
     }
 
-    public void makeRequestForFlight(String flightNumber, String date) {
-        String url = "https://wings-jcsu.herokuapp.com/flight?flightNumber=" + flightNumber + "&date=" + date;
-        final Gson gson = new Gson();
-
-        final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Flight flight = gson.fromJson(response.toString(), Flight.class);
-                    }
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // TODO: Handle error
-                        Toast.makeText(MainActivity.this, "Error app side ", Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-        MySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
+    private void openDirectionsInGoogleMaps(String latitude, String longitude) {
+        Uri gmmIntentUri = Uri.parse("geo:" + latitude + "," + longitude);
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        if (mapIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(mapIntent);
+        }
     }
 
-    public void makeRequestForAirportInfo(String airportCode) {
-        String url = "https://wings-jcsu.herokuapp.com/airports?code=LAX";
-        final Gson gson = new Gson();
-
-        final JsonArrayRequest array = new JsonArrayRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
-
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        //Airport airport = gson.fromJson(response.toString(), Airport.class);
-                        final GsonBuilder gsonBuilder = new GsonBuilder();
-                        final Gson gson = gsonBuilder.create();
-
-                        Airport[] testCase = gson.fromJson(response.toString(), Airport[].class);
-                        Toast.makeText(MainActivity.this, ""+testCase[0].getLatitude(),Toast.LENGTH_SHORT).show();
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(MainActivity.this, "Error " + error.toString(), Toast.LENGTH_LONG).show();
-                    }
-                });
-
-        MySingleton.getInstance(this).addToRequestQueue(array);
+    public double getFahrenheit(double degreesKelvin) {
+        double f = (((degreesKelvin - 273) * 9d / 5) + 32);
+        return f;
     }
+
 
 }
